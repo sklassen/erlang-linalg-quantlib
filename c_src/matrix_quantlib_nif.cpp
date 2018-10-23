@@ -15,11 +15,11 @@ static ERL_NIF_TERM version_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
 
 static ErlNifFunc nif_funcs[] = {
   {"version", 0, version_nif},
-  {"mmultiply", 2, matrix_mult},
+  {"multiply", 2, matrix_mult},
   {"transpose", 1, matrix_transpose},
   {"inverse", 1, matrix_inverse},
   {"svd", 1, svd},
 };
 
   
-ERL_NIF_INIT(ql, nif_funcs, NULL, NULL, NULL, NULL)
+ERL_NIF_INIT(matrix_quantlib, nif_funcs, NULL, NULL, NULL, NULL)

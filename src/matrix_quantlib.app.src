@@ -1,0 +1,13 @@
+{application, matrix_quantlib,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { matrix_quantlib, []}},
+  {env, []}
+ ]}.
+
