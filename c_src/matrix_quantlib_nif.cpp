@@ -1,4 +1,3 @@
-#include"nifpp.h"
 #include"ql_svd.h"
 #include "ql/version.hpp"
 
