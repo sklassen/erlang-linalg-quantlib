@@ -5,7 +5,7 @@
 #include <boost/function.hpp>
 #include <ql/math/matrix.hpp>
 #include <ql/math/matrixutilities/svd.hpp>
-#include "ql_svd.h"
+#include "ql_linalg.h"
 #include <iostream>
 #include <iomanip>
 
@@ -45,7 +45,7 @@ ERL_NIF_TERM matrix_transpose(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 }
 
 
-ERL_NIF_TERM matrix_inverse(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+ERL_NIF_TERM matrix_inv(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	std::vector<std::vector<Real>> matrixA;
 
@@ -79,7 +79,7 @@ ERL_NIF_TERM matrix_inverse(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 }
 
-ERL_NIF_TERM matrix_mult(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+ERL_NIF_TERM matrix_matmul(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	std::vector<std::vector<Real>> matrixA;
 	std::vector<std::vector<Real>> matrixB;

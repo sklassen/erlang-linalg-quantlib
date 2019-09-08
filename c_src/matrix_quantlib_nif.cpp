@@ -1,5 +1,5 @@
 #include"nifpp.h"
-#include"ql_svd.h"
+#include"ql_linalg.h"
 #include "ql/version.hpp"
 
 // ql:version().
@@ -15,9 +15,9 @@ static ERL_NIF_TERM version_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
 
 static ErlNifFunc nif_funcs[] = {
   {"version", 0, version_nif},
-  {"multiply", 2, matrix_mult},
+  {"matmul", 2, matrix_matmul},
   {"transpose", 1, matrix_transpose},
-  {"inverse", 1, matrix_inverse},
+  {"inv", 1, matrix_inv},
   {"svd", 1, svd},
 };
 
