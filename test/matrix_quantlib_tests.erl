@@ -2,9 +2,6 @@
 -import(matrix_quantlib,[transpose/1,matmul/2]).
 -include_lib("eunit/include/eunit.hrl").
 
-transpose_0_test() ->
-	?assert(transpose([[]])=:=[[]]).
-
 transpose_1_test() ->
 	?assert(transpose([[8.0]])=:=[[8.0]]).
 

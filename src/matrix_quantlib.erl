@@ -9,29 +9,24 @@
 		]).
 -on_load(init/0).
 
--ifdef(TEST).
--include_lib("eunit/include/eunit.hrl").
--endif.
-
-
 init() ->
-	Directory=filename:dirname(code:which(matrix_quantlib)),
+    Directory=filename:dirname(code:which(matrix_quantlib)),
     erlang:load_nif(Directory++"/../priv/ql_nif", 0).
 
 version() -> 
-	exit(nif_library_not_loaded).
+    exit(nif_library_not_loaded).
 
 matmul(_,_)->
 	exit(nif_library_not_loaded).
 
 transpose(_)->
-	exit(nif_library_not_loaded).
+    exit(nif_library_not_loaded).
 
 inv(_)->
 	exit(nif_library_not_loaded).
 
 svd(_)->
-	exit(nif_library_not_loaded).
+    exit(nif_library_not_loaded).
 
 matrix(Matrix, rc)->
 	lists:map(fun(Row) -> lists:map(fun(El) -> float(El) end, Row) end, Matrix).
