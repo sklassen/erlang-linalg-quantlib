@@ -1,4 +1,4 @@
-{application, matrix_quantlib,
+{application, linalg_quantlib,
  [
   {description, ""},
   {vsn, "1"},
@@ -7,7 +7,7 @@
                   kernel,
                   stdlib
                  ]},
-  {mod, { matrix_quantlib, []}},
+  {mod, { linalg_quantlib, []}},
   {env, []}
  ]}.
 

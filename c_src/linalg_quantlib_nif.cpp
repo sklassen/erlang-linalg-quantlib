@@ -1,18 +1,44 @@
-/* ql_nif.c */
+#include "nifpp.h"
+#include "nifutils.h"
+
+#include <boost/function.hpp>
+#include <ql/cashflow.hpp>
 
 #include <ql/qldefines.hpp>
-#include <ql/cashflow.hpp>
-#include <boost/function.hpp>
 #include <ql/math/matrix.hpp>
 #include <ql/math/matrixutilities/svd.hpp>
-#include "ql_linalg.h"
 #include <iostream>
 #include <iomanip>
 
 using namespace QuantLib;
 
+// ql:version().
+static ERL_NIF_TERM version_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+	try {
+        std::string version= "QuantLib ";
+        //version+=QL_VERSION;
+		return enif_make_string(env, version.c_str(), ERL_NIF_LATIN1);
+	} catch (...) {
+		return enif_make_tuple2(env,enif_make_atom(env,"error"),enif_make_string(env, "FAILED", ERL_NIF_LATIN1));
+	}
+}
 
-ERL_NIF_TERM matrix_transpose(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+  
+std::vector<std::vector<Real>> matrix_to_vector(Matrix ql_matrix) {
+
+	int rows, cols;
+	rows = ql_matrix.rows();
+	cols = ql_matrix.columns();
+	std::vector<std::vector<Real>> result(rows, std::vector<Real>(cols));
+	for (int r=0; r<rows; r++)
+	  for(int c=0; c<cols; c++)
+		result[r][c] = ql_matrix[r][c];
+	return result;
+  }
+
+
+ERL_NIF_TERM transpose_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	std::vector<std::vector<Real>> matrixA;
 
@@ -35,7 +61,7 @@ ERL_NIF_TERM matrix_transpose(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 		Matrix tA = transpose(A);
 
 		std::vector<std::vector<Real>> M;
-		M = nifutils::matrix_to_vector(tA);
+		M = matrix_to_vector(tA);
 
 		return nifpp::make(env,M);
 	} catch (std::exception &e) {
@@ -45,7 +71,7 @@ ERL_NIF_TERM matrix_transpose(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[
 }
 
 
-ERL_NIF_TERM matrix_inv(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+ERL_NIF_TERM inv_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	std::vector<std::vector<Real>> matrixA;
 
@@ -66,11 +92,12 @@ ERL_NIF_TERM matrix_inv(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	
 	try {
 		Real det = determinant (A);
-		QL_REQUIRE (! close (det ,0.0) , " Non invertible matrix !");
+        if (det==0.0)
+		    return enif_make_atom(env,"error");
 		Matrix invA = inverse (A);
 
 		std::vector<std::vector<Real>> M;
-		M = nifutils::matrix_to_vector(invA);
+		M = matrix_to_vector(invA);
 
 		return nifpp::make(env,M);
 	} catch (std::exception &e) {
@@ -79,7 +106,7 @@ ERL_NIF_TERM matrix_inv(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
 }
 
-ERL_NIF_TERM matrix_matmul(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+ERL_NIF_TERM matmut_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	std::vector<std::vector<Real>> matrixA;
 	std::vector<std::vector<Real>> matrixB;
@@ -112,7 +139,7 @@ ERL_NIF_TERM matrix_matmul(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		Matrix res = A1 * B1;
 
 		std::vector<std::vector<Real>> M;
-		M = nifutils::matrix_to_vector(res);
+		M = matrix_to_vector(res);
 
 		return nifpp::make(env,M);
 	} catch (std::exception &e) {
@@ -136,7 +163,7 @@ ERL_NIF_TERM svd(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	}    
 
 	size_t row, col;
-	// for some reason I alwasy get wrong rows (one more) so changing the code to reduce it by one
+
 	row = matrix_for_svd.size();
 	col = matrix_for_svd[0].size();
 
@@ -149,7 +176,8 @@ ERL_NIF_TERM svd(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	try {
 		// Check if the matrix is invertible
 		Real det = determinant (A);
-		QL_REQUIRE (! close (det ,0.0) , " Non invertible matrix !");
+        if (det==0.0)
+		    return enif_make_atom(env,"error");
 		Matrix invA = inverse (A);
 		SVD svdDec (A);
 		Matrix UMatrix = svdDec.U();
@@ -164,8 +192,8 @@ ERL_NIF_TERM svd(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 	
 		std::vector<std::vector<Real>> UMatrix_erl, VMatrix_erl, DiagMatrix_erl;
 	
-		UMatrix_erl = nifutils::matrix_to_vector(UMatrix);
-		VMatrix_erl = nifutils::matrix_to_vector(UMatrix);
+		UMatrix_erl = matrix_to_vector(UMatrix);
+		VMatrix_erl = matrix_to_vector(UMatrix);
 	
 		ERL_NIF_TERM U_erl = enif_make_tuple2(env, enif_make_atom(env, "u"), nifpp::make(env, UMatrix_erl));
 		ERL_NIF_TERM V_erl = enif_make_tuple2(env, enif_make_atom(env, "v"), nifpp::make(env, VMatrix_erl));
@@ -175,3 +203,14 @@ ERL_NIF_TERM svd(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 		return enif_make_tuple2(env,enif_make_atom(env,"error"),enif_make_string(env, e.what(), ERL_NIF_LATIN1));
 	}    
 }
+
+static ErlNifFunc nif_funcs[] = {
+  {"version", 0, version_nif},
+  {"transpose", 1, transpose_nif},
+  {"inv", 1, inv_nif},
+  {"matmul", 2, matmut_nif},
+  {"svd", 1, svd},
+};
+
+  
+ERL_NIF_INIT(linalg_quantlib, nif_funcs, NULL, NULL, NULL, NULL)

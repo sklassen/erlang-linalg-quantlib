@@ -1,4 +1,4 @@
--module(matrix_quantlib).
+-module(linalg_quantlib).
 -export([init/0,
 		version/0,
 		svd/1,
@@ -10,19 +10,19 @@
 -on_load(init/0).
 
 init() ->
-    Directory=filename:dirname(code:which(matrix_quantlib)),
-    erlang:load_nif(Directory++"/../priv/ql_nif", 0).
+    Directory=filename:dirname(code:which(linalg_quantlib)),
+    erlang:load_nif(Directory++"/../priv/linalg_quantlib_nif", 0).
 
 version() -> 
     exit(nif_library_not_loaded).
-
-matmul(_,_)->
-	exit(nif_library_not_loaded).
 
 transpose(_)->
     exit(nif_library_not_loaded).
 
 inv(_)->
+	exit(nif_library_not_loaded).
+
+matmul(_,_)->
 	exit(nif_library_not_loaded).
 
 svd(_)->
